@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">MyAccount</string>
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_login">Login</string>
+    <string name="action_login_short">Login</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="invalid_username">Not a valid email</string>
+    <string name="invalid_password">Password must not be empty</string>
+    <string name="login_failed">"Login failed"</string>
+    <string name="imageChooserTitle">Image source</string>
+    <string name="chooseFromGallary">Select photo from gallery</string>
+    <string name="chooseFromCamera">Capture photo from camera</string>
+</resources>
