@@ -32,7 +32,8 @@ class LoginActivity : AppCompatActivity() {
         val login = findViewById<Button>(R.id.btnLogin)
         val loading = findViewById<ProgressBar>(R.id.progressBar)
 
-        loginViewModel = ViewModelProviders.of(this, LoginViewModelFactory())
+        loginViewModel = ViewModelProviders
+            .of(this, LoginViewModelFactory())
             .get(LoginViewModel::class.java)
 
         loginViewModel.loginFormState.observe(this@LoginActivity, Observer {

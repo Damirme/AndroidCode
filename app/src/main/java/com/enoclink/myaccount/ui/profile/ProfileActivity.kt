@@ -5,8 +5,10 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
@@ -18,6 +20,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.enoclink.myaccount.R
 import com.enoclink.myaccount.ui.login.LoginViewModelFactory
+import java.io.File
 
 
 class ProfileActivity : AppCompatActivity() {
@@ -54,6 +57,13 @@ class ProfileActivity : AppCompatActivity() {
             }
         })
 
+        profileViewModel.profileAvatarPath.observe(this@ProfileActivity, Observer {
+            val photoPath = it ?: return@Observer
+
+            imvProfile?.setImageURI(Uri.fromFile(File(photoPath)))
+
+        })
+
         imvProfile?.setOnClickListener {
             if (loading.visibility == View.GONE) {
                 showImageChooser()
@@ -88,19 +98,19 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, imageReturnedIntent: Intent?) {
+        Log.e(TAG, "onActivityResult: $requestCode, resultCode: $resultCode")
         when (requestCode) {
             0 -> if (resultCode == Activity.RESULT_OK) {
-                val selectedImage = imageReturnedIntent!!.data
-                imvProfile?.setImageURI(selectedImage)
             }
-            TAKE_PHOTO -> if (resultCode == Activity.RESULT_OK) {
-                val selectedImage = imageReturnedIntent!!.data
-                imvProfile?.setImageURI(selectedImage)
-            }
+            TAKE_PHOTO ->
+                if (resultCode == Activity.RESULT_OK) {
+                    profileViewModel.setProfilePhoto()
+                }
         }
         super.onActivityResult(requestCode, resultCode, imageReturnedIntent)
 
     }
+
 
     private fun validatePermissions() {
         if (ContextCompat.checkSelfPermission(
@@ -120,14 +130,18 @@ class ProfileActivity : AppCompatActivity() {
         }
     }
 
+
     private fun openCamera() {
-
-        val outputFileUri = profileViewModel.getOutputFileUri(this@ProfileActivity)
-
-        val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri)
-        startActivityForResult(cameraIntent, TAKE_PHOTO)
+        Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
+            takePictureIntent.resolveActivity(packageManager)?.also {
+                // Create the File where the photo should go
+                val fileUri = profileViewModel.getOutputFileUri(this)
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri)
+                startActivityForResult(takePictureIntent, TAKE_PHOTO)
+            }
+        }
     }
+
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
